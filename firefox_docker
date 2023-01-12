@@ -1,0 +1,21 @@
+#!/bin/bash
+
+NAME=firefox_docker
+
+if [ $(docker ps -a | grep $NAME | wc -l) -eq 1 ]
+then
+    echo "firefox already active"
+    docker exec $NAME "firefox-esr" "$@"
+else
+    echo "firefix not active yet"
+    docker run --rm\
+        -e DISPLAY=$DISPLAY\
+        -e PULSE_SERVER=unix:/run/user/1000/pulse/native\
+        -v /tmp/.X11-unix:/tmp/.X11-unix\
+        -v /run/user/$UID/pulse/native:/run/user/1000/pulse/native\
+        --user dockeruser\
+        --name $NAME\
+        --device /dev/dri\
+        $NAME:latest "firefox-esr" "$@"
+fi
+
